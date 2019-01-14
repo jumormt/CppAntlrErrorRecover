@@ -189,6 +189,7 @@ public class CppFileLoader extends CPP14BaseListener {
         APITreeBean api = new APITreeBean();
         api.setAPITree(deleteTree);
         api.setTopTree(this.currentTopTree);
+        api.setApiLine(ctx.start.getLine());
         ArrayList<String> paramList = new ArrayList<>();
         paramList.add(deleteId);
         api.setParamList(paramList);
