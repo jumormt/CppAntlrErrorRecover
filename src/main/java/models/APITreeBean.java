@@ -11,6 +11,16 @@ public class APITreeBean {
     String APIName = null;
     String topName = null;
 
+    public Integer getApiLine() {
+        return apiLine;
+    }
+
+    public void setApiLine(Integer apiLine) {
+        this.apiLine = apiLine;
+    }
+
+    Integer apiLine = null;
+
     public APITreeBean(){
 
     }

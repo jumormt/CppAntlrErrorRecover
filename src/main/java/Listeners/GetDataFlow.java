@@ -140,8 +140,8 @@ public class GetDataFlow {
             FinalResultBean finalResult = new FinalResultBean();
             finalResult.setFuncSeq(maxFuncSeq);
             finalResult.setLines(lines);
-            ParserRuleContext apitree = (ParserRuleContext) api.getAPITree();
-            finalResult.setApiLine(apitree.start.getLine());
+//            ParserRuleContext apitree = (ParserRuleContext) api.getAPITree();
+            finalResult.setApiLine(api.getApiLine());
             this.result.add(finalResult);
         }
     }

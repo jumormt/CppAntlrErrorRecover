@@ -1,6 +1,7 @@
 package Listeners;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.util.ArrayList;
@@ -83,6 +84,21 @@ public class FuncTreeListener extends CPP14BaseListener {
         if(!isFinished){
             if(ctx == this.item.getCurrentPointTree()){
                 Integer targetLine = ctx.start.getLine();
+                ResultBean tmpResult = new ResultBean();
+                tmpResult.setNodeLine(targetLine);
+                tmpResult.setFuncLine(this.topLine);
+                this.tmp.add(tmpResult);
+                //说明后面的不需要进行搜索了,success
+                this.isFinished = true;
+            }
+        }
+    }
+
+    @Override
+    public void visitErrorNode(ErrorNode node) {
+        if (!isFinished) {
+            if (node == this.item.getCurrentPointTree()) {
+                Integer targetLine = node.getSymbol().getLine();
                 ResultBean tmpResult = new ResultBean();
                 tmpResult.setNodeLine(targetLine);
                 tmpResult.setFuncLine(this.topLine);

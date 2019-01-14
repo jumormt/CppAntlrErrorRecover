@@ -52,15 +52,18 @@ public class GetErrorApiParam extends CPP14BaseListener {
 
             if (node.getText().equals(")")) {
                 bracketsStack.pop();
-                return;
-            }
-
-            if(!node.getText().matches("<missing '(.)'>")){
-                if (CodeGadgetUtils.CODE_GADGET_UTILS.isValidVarName(node.getText())) {
-                    paramList.add(node.getText());
+                if (bracketsStack.empty()) {
+                    isEnd = true;
                 }
                 return;
             }
+
+            if(!node.getText().matches("<missing '(.)'>")) {
+                if (CodeGadgetUtils.CODE_GADGET_UTILS.isValidVarName(node.getText())) {
+                    paramList.add(node.getText());
+                }
+            }
+            return;
         }
 
         if (isReachApi) {
@@ -81,7 +84,10 @@ public class GetErrorApiParam extends CPP14BaseListener {
     @Override
     public void enterUnqualifiedid(CPP14Parser.UnqualifiedidContext ctx) {
         if (!isEnd && isFirstReachLeft) {
-            this.paramList.add(ctx.getText());
+            // 当嵌套时会加入函数，需要去除函数名,只加入参数。
+            if (ctx.parent.parent.parent.parent.getRuleContext() instanceof CPP14Parser.UnaryexpressionContext) {
+                this.paramList.add(ctx.getText());
+            }
         }
     }
 

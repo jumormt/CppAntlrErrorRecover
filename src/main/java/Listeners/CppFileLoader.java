@@ -125,6 +125,7 @@ public class CppFileLoader extends CPP14BaseListener {
                 api.setParamList(paramList);
                 api.setAPIName(funcCallName);
                 api.setTopName(this.currentTopName);
+                api.setApiLine(ctx.start.getLine());
                 this.APITreeList.add(api);
             }
             CallerBean caller = new CallerBean();
@@ -143,11 +144,12 @@ public class CppFileLoader extends CPP14BaseListener {
      * @param ctx
      */
     @Override
-    public void enterEveryRule(ParserRuleContext ctx) {
+    public void visitErrorNode(ErrorNode ctx) {
         if (this.apiList.contains(ctx.getText())) {
             APITreeBean api = new APITreeBean();
 //            api.setAPITree(ctx);
             api.setAPITree(ctx);
+            api.setApiLine(ctx.getSymbol().getLine());
             api.setTopTree(this.currentTopTree);
 //            api.setParamList(paramList);
             api.setParamList(null);
@@ -156,7 +158,12 @@ public class CppFileLoader extends CPP14BaseListener {
             //TODO:获取api的参数列表
             ParseTreeWalker walker = new ParseTreeWalker();
             GetErrorApiParam getErrorApiParam = new GetErrorApiParam(ctx.getText());
-            walker.walk(getErrorApiParam, ctx.parent);
+            ParseTree errorParnt = ctx.getParent();
+            while(!getErrorApiParam.isEnd() && errorParnt!=null) {
+                getErrorApiParam = new GetErrorApiParam(ctx.getText());
+                walker.walk(getErrorApiParam, errorParnt);
+                errorParnt = errorParnt.getParent();
+            }
 
             api.setParamList(getErrorApiParam.getParamList());
 
@@ -239,13 +246,6 @@ public class CppFileLoader extends CPP14BaseListener {
         return paramMap;
     }
 
-    @Override
-    public void visitErrorNode(ErrorNode node) {
-        String errorNodeName = node.getText();
-        //System.out.print(errorNodeName + " ");
-
-
-    }
 
     public void removeExtraChar(){
 //        this.outPutLine = this.outPutLine.replaceAll("<missing \'(.)\'>","");

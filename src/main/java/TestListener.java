@@ -148,7 +148,7 @@ public class TestListener {
         String rootInputFile = "/Users/chengxiao/Desktop/源码检测/Antlr4L/cppDataFlow/testgrammar0/errorRecover/src/main/resources/";
 //        if (args.length > 0) inputFile = args[0];
 //        else inputFile = "/Users/chengxiao/Desktop/源码检测/Antlr4L/cppDataFlow/testgrammar0/errorRecover/src/main/resources/CWE426_Untrusted_Search_Path__char_popen_82a.cpp";
-        inputFile = rootInputFile + "CWE426_Untrusted_Search_Path__wchar_t_popen_21.c";
+        inputFile = rootInputFile + "value_string_1.c";
 
         TestListener.generate(inputFile);
 
