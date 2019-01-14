@@ -50,6 +50,7 @@ public class GetDataFlow {
         //new
         //funcSeq.addAll(node.getPreviousLines());
         Integer topLine = funcTreeListener.getTopLine();
+        // 防止循环调用
         if (callSeq.contains(topLine)) {
             return;
         } else {

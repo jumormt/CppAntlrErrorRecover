@@ -1,5 +1,6 @@
 package Listeners;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.*;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class CppFileLoader extends CPP14BaseListener {
             add("strncpy");add("snprintf");add("getenv_s");
             add("mkdir");add("longjmp");add("strncat");
             add("strncpy");add("snprintf");add("getenv_s");
+            add("g_snprintf");add("strcpy");
         }
     };
 
@@ -136,6 +138,32 @@ public class CppFileLoader extends CPP14BaseListener {
         }
     }
 
+    /**
+     *
+     * @param ctx
+     */
+    @Override
+    public void enterEveryRule(ParserRuleContext ctx) {
+        if (this.apiList.contains(ctx.getText())) {
+            APITreeBean api = new APITreeBean();
+//            api.setAPITree(ctx);
+            api.setAPITree(ctx);
+            api.setTopTree(this.currentTopTree);
+//            api.setParamList(paramList);
+            api.setParamList(null);
+            api.setAPIName(ctx.getText());
+            api.setTopName(this.currentTopName);
+            //TODO:获取api的参数列表
+            ParseTreeWalker walker = new ParseTreeWalker();
+            GetErrorApiParam getErrorApiParam = new GetErrorApiParam(ctx.getText());
+            walker.walk(getErrorApiParam, ctx.parent);
+
+            api.setParamList(getErrorApiParam.getParamList());
+
+            this.APITreeList.add(api);
+        }
+    }
+
     @Override
     public void exitPostfixexpression(CPP14Parser.PostfixexpressionContext ctx) {
         if (ctx.getChild(0).getClass() == ctx.getClass() && ctx.getChild(1).getText().equals("(")) {
@@ -162,7 +190,12 @@ public class CppFileLoader extends CPP14BaseListener {
         this.APITreeList.add(api);
     }
 
-//    /**
+    @Override
+    public void enterStatement(CPP14Parser.StatementContext ctx) {
+        super.enterStatement(ctx);
+    }
+
+    //    /**
 //     * 退出函数体后，更新本函数所调用的所有其他函数的列表。
 //     * @param ctx
 //     */

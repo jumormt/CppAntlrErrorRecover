@@ -1,27 +1,30 @@
 //: TestListener.java
-
+/**
+ *
+ */
 
 import Listeners.*;
-import antlrfiles.CPP14Lexer;
-import antlrfiles.CPP14Parser;
+import antlrfiles.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import models.*;
 
 import java.io.*;
 import java.util.*;
+
+import org.junit.Test;
 import utils.*;
 
 public class TestListener {
 
-
-
-    public static void main(String[] args) throws Exception {
-        String inputFile = null;
-        if (args.length > 0) inputFile = args[0];
-        else inputFile = "/Users/chengxiao/Desktop/源码检测/Antlr4L/cppDataFlow/testgrammar0/errorRecover/src/main/resources/CWE426_Untrusted_Search_Path__char_popen_82a.cpp";
+    /**
+     * @param inputFile
+     * @return
+     * @throws Exception
+     */
+    private static CppFileLoader proProcess(String inputFile) throws Exception {
         InputStream is = System.in;
-        if ( inputFile!=null ) {
+        if (inputFile != null) {
             is = new FileInputStream(inputFile);
         }
         ANTLRInputStream input = new ANTLRInputStream(is);
@@ -42,6 +45,8 @@ public class TestListener {
 
         //如果在解析语法树的时候发生错误，那么停止对该文件的处理
         if (testErrorListner.isErrorOccurred()) {
+            System.out.println("Errors Start Here ------------------>");
+            System.out.println();
             for (TestErrorListner.ErrorLineBean errorLineBean : testErrorListner.getErrorLineBeans()) {
                 System.out.println(errorLineBean.getErrorLineTitle());
                 System.out.println();
@@ -51,24 +56,56 @@ public class TestListener {
 
             }
         }
-        ArrayList<APITreeBean> apis = loader.getAPITreeList(); // 该代码包含的api列表
-        Map<String, ArrayList<String>> paramMap = loader.getParamMap(); // 该代码包含的函数名及其参数映射
-        loader.mergeCallerList();
-        Map<String, ArrayList<CallerBean>> call = loader.getCallRelation(); // 该代码包含的函数及调用该函数的函数列表映射（这里只考虑了backward）
-
-        GetDataFlow getDataFlow = new GetDataFlow(call, apis, paramMap);
-        getDataFlow.process();
-        ArrayList<FinalResultBean> result = getDataFlow.getResult();
-        is = null;
         input = null;
         lexer = null;
         tokenStream = null;
         cpp14Parser = null;
         walker = null;
-        loader = null;
+        return loader;
+    }
+
+    @Test
+    public void testPreprocess() throws Exception {
+        String rootInputFile = "/Users/chengxiao/Desktop/源码检测/Antlr4L/cppDataFlow/testgrammar0/errorRecover/src/main/resources/";
+        String inputFile = rootInputFile + "value_string_1.c";
+        CppFileLoader cppFileLoader = proProcess(inputFile);
+
+        System.out.println("done");
+
+    }
+
+    /**
+     * @param inputFile
+     * @throws Exception
+     */
+    private static void generate(String inputFile) throws Exception {
+
+        if (inputFile == null) {
+            System.out.println("inputfile is null!");
+            return;
+        }
+        InputStream is = System.in;
+        is = new FileInputStream(inputFile);
+        CppFileLoader cppFileLoader = proProcess(inputFile);
+
+        ArrayList<APITreeBean> apis = cppFileLoader.getAPITreeList(); // 该代码包含的api列表
+        Map<String, ArrayList<String>> paramMap = cppFileLoader.getParamMap(); // 该代码包含的函数名及其参数映射
+        cppFileLoader.mergeCallerList();
+        Map<String, ArrayList<CallerBean>> call = cppFileLoader.getCallRelation(); // 该代码包含的函数及调用该函数的函数列表映射（这里只考虑了backward）
+
+        GetDataFlow getDataFlow = new GetDataFlow(call, apis, paramMap);
+        getDataFlow.process();
+        ArrayList<FinalResultBean> result = getDataFlow.getResult();
+        is = null;
+
+        cppFileLoader = null;
         getDataFlow = null;
 
         ArrayList<String> fileContents = CodeGadgetUtils.CODE_GADGET_UTILS.readFile(new File(inputFile));
+
+        System.out.println("Results Start Here ------------------>");
+        System.out.println();
+
 
         for (FinalResultBean finalResult : result) {
             LinkedList<FuncLocListItem> tmp = new LinkedList<>();
@@ -104,7 +141,16 @@ public class TestListener {
             }
         }
 
+    }
 
+    public static void main(String[] args) throws Exception {
+        String inputFile = null;
+        String rootInputFile = "/Users/chengxiao/Desktop/源码检测/Antlr4L/cppDataFlow/testgrammar0/errorRecover/src/main/resources/";
+//        if (args.length > 0) inputFile = args[0];
+//        else inputFile = "/Users/chengxiao/Desktop/源码检测/Antlr4L/cppDataFlow/testgrammar0/errorRecover/src/main/resources/CWE426_Untrusted_Search_Path__char_popen_82a.cpp";
+        inputFile = rootInputFile + "CWE426_Untrusted_Search_Path__wchar_t_popen_21.c";
+
+        TestListener.generate(inputFile);
 
 //        System.out.println(loader);
 

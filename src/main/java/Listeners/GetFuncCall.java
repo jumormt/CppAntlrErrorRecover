@@ -32,6 +32,7 @@ public class GetFuncCall extends CPP14BaseListener {
      */
     @Override
     public void enterUnqualifiedid(CPP14Parser.UnqualifiedidContext ctx) {
+        //todo：不完全，当嵌套时会加入函数，需要去除函数名。
         this.paramList.add(ctx.getText());
     }
 
